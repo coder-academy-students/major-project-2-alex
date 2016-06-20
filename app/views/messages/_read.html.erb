@@ -1,0 +1,5 @@
+
+<%= simple_form_for(@message) do |f| %>
+  <%= f.error_notification %>
+  <%= f.button :submit, 'mark as read', class: "message" %>
+<% end %>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TwoSidedMarketplace01</title>
+    <%= csrf_meta_tags %>
+
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+<link href='https://fonts.googleapis.com/css?family=Exo:400,300,200,100,500,600,700' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="https://checkout.stripe.com/v3/checkout/button.css"></link>
+  </head>
+
+  <body>
+    <%= render 'layouts/navigation' %>
+
+    <%= yield %>
+
+    <footer>
+      <p>&copy; Alex Karolis</p>
+      <p>contact me: alexi2 at protonmail dot com</p>
+    </footer>
+  </body>
+</html>

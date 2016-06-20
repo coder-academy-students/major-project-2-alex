@@ -1,0 +1,83 @@
+<main>
+  <p id="notice"><%= notice %></p>
+  <div class="profile">
+
+  <% connection = relationship_connection(@student_profile.id) %>
+
+    <% if connection == 'pending_student_approval' %>
+      <h3>You have requested to connect with <%= @student_profile.first_name %></h3>
+    <% elsif connection == 'connected' %>
+      <h3>You are connected with <%= @student_profile.first_name %></h3>
+    <% elsif connection == 'pending_tutor_approval' %>
+      <h3><%= @student_profile.first_name %> has requested to connect with you!</h3>
+    <% end %>
+
+    <% if @student_profile.profile_image.file.nil? %>
+      <p>No profile image provided</p>
+    <% else %>
+      <figure>
+      <%= image_tag @student_profile.profile_image %>
+      </figure>
+    <% end %>
+
+    <dl>
+      <dt>Name</dt>
+      <dd><%= @student_profile.first_name %> <%= @student_profile.last_name %></dd>
+
+      <dt>Address</dt>
+      <dd><%= @student_profile.suburb %> <%= @student_profile.state %> <%= @student_profile.postcode %> <%= @student_profile.country %></dd>
+
+      <dt>Categories</dt>
+      <dd><%= @student_profile.categories %></dd>
+
+      <dt>About <%= @student_profile.first_name %></dt>
+      <dd><%= @student_profile.bio %></dd>
+    </dl>
+
+    <% if current_user.has_role? :admin %>
+      <%= link_to 'Edit', edit_student_profile_path(@student_profile) %> |
+    <% end %>
+    <%= link_to 'Back', student_profiles_path %>
+
+    <% unless @student_profile.user_id == current_user.id %>
+      <span><%= link_to 'Message', new_message_path(receiver: @student_profile.user_id), class: 'message' %></span>
+      <% if connection == 'unconnected' %>
+        <span><%= link_to 'Request connection', new_relationship_path(id: @student_profile.id), class: 'message' %></span>
+        <% elsif connection =='pending_tutor_approval' %>
+          <span><%= link_to 'Approve connection', new_relationship_path(id: @student_profile.id), class: 'message' %></span>
+      <% end %>
+    <% end %>
+
+    <dl class="map">
+      <dt>Where is <%= @student_profile.first_name %>?</dt>
+      <dd><div id="map"></div></dd>
+    </dl>
+  </div>
+</main>
+<script>
+var geocoder;
+var map;
+function codeAddress() {
+  geocoder = new google.maps.Geocoder();
+  var latlng = new google.maps.LatLng(-34.397, 150.644);
+  var mapOptions = {
+    zoom: 14,
+    center: latlng
+  };
+  map = new google.maps.Map(document.getElementById("map"), mapOptions);
+  var address = "<%= address(@student_profile) %>";
+  geocoder.geocode( { 'address': address}, function(results, status) {
+    if (status == google.maps.GeocoderStatus.OK) {
+      map.setCenter(results[0].geometry.location);
+      var marker = new google.maps.Marker({
+          map: map,
+          position: results[0].geometry.location
+      });
+    } else {
+      alert("Geocode was not successful for the following reason: " + status);
+    }
+  });
+};
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxUfgP-LgiJbA96ELCiOycOTYJlac9wAo&callback=codeAddress"
+async defer></script>

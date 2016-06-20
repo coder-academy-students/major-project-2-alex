@@ -1,0 +1,80 @@
+<main>
+  <p id="notice"><%= notice %></p>
+  <div class="profile">
+    <% connection = relationship_connection(@tutor_profile.id) %>
+    <% if connection == 'pending_tutor_approval' %>
+      <h3>You have requested to connect with <%= @tutor_profile.first_name %></h3>
+    <% elsif connection == 'connected' %>
+      <h3>You are connected with <%= @tutor_profile.first_name %></h3>
+    <% elsif connection == 'pending_student_approval' %>
+      <h3><%= @tutor_profile.first_name %> has requested to connect with you!</h3>
+    <% end %>
+
+    <% if @tutor_profile.profile_image.file.nil? %>
+      <p>No profile image provided</p>
+    <% else %>
+      <figure>
+      <%= image_tag @tutor_profile.profile_image %>
+      </figure>
+    <% end %>
+    <dl>
+      <dt>Name</dt>
+      <dd><%= @tutor_profile.first_name %> <%= @tutor_profile.last_name %></dd>
+
+      <dt>Address</dt>
+      <dd><%= @tutor_profile.suburb %> <%= @tutor_profile.state %> <%= @tutor_profile.postcode %> <%= @tutor_profile.country %></dd>
+
+      <dt>Categories</dt>
+      <dd><%= @tutor_profile.categories %></dd>
+
+      <dt>About <%= @tutor_profile.first_name %></dt>
+      <dd><%= @tutor_profile.bio %></dd>
+    </dl>
+
+    <% if current_user.has_role? :admin %>
+      <%= link_to 'Edit', edit_tutor_profile_path(@tutor_profile) %> |
+    <% end %>
+    <%= link_to 'Back', tutor_profiles_path %>
+
+    <% unless @tutor_profile.user_id == current_user.id %>
+      <span><%= link_to 'Message', new_message_path(receiver: @tutor_profile.user_id), class: 'message' %></span>
+      <% if connection == 'unconnected'%>
+        <span><%= link_to 'Request connection', new_relationship_path(id: @tutor_profile.id), class: 'message' %></span>
+      <% elsif connection =='pending_student_approval' %>
+        <span><%= link_to 'Approve connection', new_relationship_path(id: @tutor_profile.id), class: 'message' %></span>
+      <% end %>
+    <% end %>
+
+    <dl class="map">
+      <dt>Where is <%= @tutor_profile.first_name %> located?</dt>
+      <dd><div id="map"></div></dd>
+    </dl>
+  </div>
+</main>
+<script>
+var geocoder;
+var map;
+function codeAddress() {
+  geocoder = new google.maps.Geocoder();
+  var latlng = new google.maps.LatLng(-34.397, 150.644);
+  var mapOptions = {
+    zoom: 14,
+    center: latlng
+  };
+  map = new google.maps.Map(document.getElementById("map"), mapOptions);
+  var address = "<%= address(@tutor_profile) %>";
+  geocoder.geocode( { 'address': address}, function(results, status) {
+    if (status == google.maps.GeocoderStatus.OK) {
+      map.setCenter(results[0].geometry.location);
+      var marker = new google.maps.Marker({
+          map: map,
+          position: results[0].geometry.location
+      });
+    } else {
+      alert("Geocode was not successful for the following reason: " + status);
+    }
+  });
+};
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxUfgP-LgiJbA96ELCiOycOTYJlac9wAo&callback=codeAddress"
+async defer></script>

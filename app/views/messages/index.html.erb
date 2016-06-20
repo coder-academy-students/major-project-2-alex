@@ -1,0 +1,76 @@
+<main>
+<div class="message-index">
+<p id="notice"><%= notice %></p>
+<h1>Inbox</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>From</th>
+      <th>Message</th>
+      <th>Sent</th>
+      <th colspan="2"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @messages.each do |message| %>
+      <% if !message.read %>
+    <tr data-href="<%= message_path(message) %>", class="unread_messages" style="background:  rgba(176, 136, 171, 0.2) !important">
+      <td><%= link_to self.get_profile_name(message.sender_id), self.get_profile(message.sender_id) %></td>
+      <td><%= link_to message.subject, message %></td>
+      <td><%= message.created_at.strftime('%a %d %b %Y') %></td>
+
+      <td>
+        <%= link_to message, method: :delete, data: { confirm: 'Are you sure?' } do %>
+          <div class="trash"></div>
+        <% end %>
+      </td>
+    </tr>
+    <% end %>
+  <% end %>
+  </tbody>
+  <tbody>
+    <tr>
+      <td colspan="6">Read messages</td>
+    </tr>
+    <% @messages.each do |message| %>
+      <% if message.read %>
+    <tr data-href="<%= message_path(message) %>">
+      <td><%= link_to self.get_profile_name(message.sender_id), self.get_profile(message.sender_id) %></td>
+      <td><%= link_to message.subject, message %></td>
+      <td><%= message.created_at.strftime('%a %d %b %Y') %></td>
+      <td>
+        <%= link_to message, method: :delete, data: { confirm: 'Are you sure?' } do %>
+        <div class="trash"></div>
+        <% end %>
+      </td>
+    </tr>
+    <% end %>
+  <% end %>
+  </tbody>
+</table>
+<br />
+<br />
+<h1>Outbox</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>To</th>
+      <th>Subject</th>
+      <th>Sent</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @outbox.each do |message| %>
+      <td><%= link_to self.get_profile_name(message.receiver_id), self.get_profile(message.receiver_id) %></td>
+      <td><%= link_to message.subject, message %></td>
+      <td><%= message.created_at.strftime('%a %d %b %Y') %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+</div>
+</main>

@@ -1,0 +1,35 @@
+<main>
+  <div class="users">
+    <div class="profile">
+      <dl class="connections-index">
+        <dt>
+          <% if current_user.has_role? :tutor %>
+            Your students
+          <% else %>
+            Your tutors
+          <% end %>
+        </dt>
+        <dd>
+        <% @my_connections.each do |profile| %>
+          <% if relationship_connection(profile.id) == 'connected' %>
+            <%= image_tag profile.profile_image %>
+            <div class="connections-text">
+            <h4><%= link_to "#{profile.first_name} #{profile.last_name}", profile %></h4>
+            <p><%= profile.categories %></p>
+            </div>
+            <div class="button">
+            <%= link_to "Homework", { controller: 'homeworks', action: 'index', profile_id: profile.id }, class: 'message' %>
+            </div>
+          <% end %>
+        <% end %>
+        </dd>
+        <dt>
+          Waiting for your approval
+        </dt>
+        <dd>
+          <%= render 'relationships/pending_approval' %>
+        </dd>
+      </dl>
+    </div>
+  </div>
+</main>
